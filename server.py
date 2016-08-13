@@ -26,6 +26,9 @@ if __name__ == '__main__':
 
 import server_pool
 import db_transfer
+import speedtest_thread
+import auto_thread
+import auto_block
 from shadowsocks import shell
 from configloader import load_config, get_config
 
@@ -46,19 +49,36 @@ def main():
 		db_transfer.DbTransfer.thread_db()
 	else:
 		if get_config().API_INTERFACE == 'mudbjson':
+<<<<<<< HEAD
 			thread = MainThread(db_transfer.MuJsonTransfer)
 		elif get_config().API_INTERFACE == 'sspanelv2':
 			thread = MainThread(db_transfer.DbTransfer)
 		else:
 			thread = MainThread(db_transfer.Dbv3Transfer)
 		thread.start()
+=======
+			threadMain = MainThread(db_transfer.MuJsonTransfer)
+		else:
+			threadMain = MainThread(db_transfer.DbTransfer)
+		threadMain.start()
+		
+		threadSpeedtest = threading.Thread(group = None, target = speedtest_thread.speedtest_thread, name = "speedtest", args = (), kwargs = {}) 
+		threadSpeedtest.start()
+		
+		threadAutoexec = threading.Thread(group = None, target = auto_thread.auto_thread, name = "autoexec", args = (), kwargs = {})  
+		threadAutoexec.start()
+		
+		threadAutoblock = threading.Thread(group = None, target = auto_block.auto_block_thread, name = "autoblock", args = (), kwargs = {})  
+		threadAutoblock.start()
+		
+>>>>>>> 9d53e83b9685db970ab990e53be3299d9083d1bd
 		try:
-			while thread.is_alive():
+			while threadMain.is_alive():
 				time.sleep(10)
 		except (KeyboardInterrupt, IOError, OSError) as e:
 			import traceback
 			traceback.print_exc()
-			thread.stop()
+			threadMain.stop()
 
 if __name__ == '__main__':
 	main()
