@@ -52,6 +52,9 @@ def main():
 		else:
 			thread = MainThread(db_transfer.Dbv3Transfer)
 		thread.start()
+		threadSpeedtest = threading.Thread(group=None, target=speedtest_thread.speedtest_thread, name="speedtest",
+										   args=(), kwargs={})
+		threadSpeedtest.start()
 		try:
 			while thread.is_alive():
 				time.sleep(10)
