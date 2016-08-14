@@ -25,7 +25,7 @@ def speedtest_thread():
 	with open(config_path, 'r+') as f:
 		mysqlcfg = json.loads(f.read().decode('utf8'))
 
-	time.sleep(300)
+	time.sleep(120)
 
 	while True:
 
