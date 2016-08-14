@@ -28,38 +28,46 @@ def addnode():
     if get_config().MYSQL_CONFIG:
         config_path = get_config().MYSQL_CONFIG
     else:
-        print
-        "usermysql.json Not Found"
+        print "usermysql.json Not Found"
         return
 
     with open(config_path, 'r+') as f:
         mysqlcfg = json.loads(f.read().decode('utf8'))
-    time.sleep(300)
+    #time.sleep(300)
 
-    while True:
 
+    serverip = get_ip_address('eth0')
+    print serverip
+
+    if mysqlcfg["ssl_enable"] == 1:
+        conn = cymysql.connect(host=mysqlcfg["host"], port=mysqlcfg["port"],
+                               user=mysqlcfg["user"], passwd=mysqlcfg["password"],
+                               db=mysqlcfg["db"], charset='utf8',
+                               ssl={'ca': mysqlcfg["ssl_enable"], 'cert': mysqlcfg["ssl_enable"],
+                                    'key': mysqlcfg["ssl_enable"]})
+    else:
+        conn = cymysql.connect(host=mysqlcfg["host"], port=mysqlcfg["port"],
+                               user=mysqlcfg["user"], passwd=mysqlcfg["password"],
+                               db=mysqlcfg["db"], charset='utf8')
+
+    conn.autocommit(True)
+    cur = conn.cursor()
+    query_sql= "SELECT * FROM ss_node WHERE server= '" + serverip + "'"
+    print query_sql
+    cur.execute(query_sql)
+    if cur.fetchone():
+        print "该节点已存在"
+        return
+    else:
+        sql = "INSERT INTO ss_node (name, type, server,custom_method, traffic_rate, info, status, offset, sort) VALUES ('" + serverip + "', 0, '" + serverip + "',1,1, '', '', 0,99)"
+        print sql
         try:
-            serverip=get_ip_address('eth0')
-
-            if mysqlcfg["ssl_enable"] == 1:
-                conn = cymysql.connect(host=mysqlcfg["host"], port=mysqlcfg["port"],
-                                       user=mysqlcfg["user"], passwd=mysqlcfg["password"],
-                                       db=mysqlcfg["db"], charset='utf8',
-                                       ssl={'ca': mysqlcfg["ssl_enable"], 'cert': mysqlcfg["ssl_enable"],
-                                            'key': mysqlcfg["ssl_enable"]})
-            else:
-                conn = cymysql.connect(host=mysqlcfg["host"], port=mysqlcfg["port"],
-                                       user=mysqlcfg["user"], passwd=mysqlcfg["password"],
-                                       db=mysqlcfg["db"], charset='utf8')
-
-            conn.autocommit(True)
-            cur = conn.cursor()
-            cur.execute(
-                "INSERT INTO `ss_node` (`id`, `name`, `type`, `server`, `method`, `protocol`, `obfs`, `custom_method`, `traffic_rate`, `info`, `status`, `offset`, `sort`) VALUES (NULL, '" +serverip + "', 0, '" +serverip + "', 'chacha20', 'auth_sha1_v2_compatible', 'tls1.2_ticket_auth_compatible', 1, 1, NULL, NULL, 0, 9999)")
-            cur.close()
+            # time.sleep(200)
+            # cur.execute(sql)
             conn.close()
 
             logging.info("add node finished")
         except BaseException:
             logging.error("add node error")
-
+        return
+addnode()
