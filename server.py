@@ -26,6 +26,7 @@ if __name__ == '__main__':
 
 import server_pool
 import db_transfer
+import speedtest_thread
 from shadowsocks import shell
 from configloader import load_config, get_config
 
