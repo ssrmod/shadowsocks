@@ -53,7 +53,7 @@ def addnode():
     conn.autocommit(True)
     cur = conn.cursor()
     query_sql= "SELECT * FROM ss_node WHERE server= '" + serverip + "'"
-    print query_sql
+    #print query_sql
     cur.execute(query_sql)
     if cur.fetchone():
         print "该节点已存在"
